@@ -131,5 +131,61 @@ void main() {
         expect(response.statusCode, 200);
       });
     });
+
+    test('testQueryParameterCollectionFormat', () async {
+      tester.onPut(
+        '/fake/test-query-paramters',
+        (server) => server.reply(200, null),
+        queryParameters: <String, dynamic>{
+          'pipe': Matchers.listParam<String>(
+            ListParam(
+              ['foo', 'bar'],
+              ListFormat.pipes,
+            ),
+          ),
+          'ioutil': Matchers.listParam<String>(
+            ListParam(
+              ['foo', 'bar'],
+              ListFormat.csv,
+            ),
+          ),
+          'http': Matchers.listParam<String>(
+            ListParam(
+              ['foo', 'bar'],
+              ListFormat.ssv,
+            ),
+          ),
+          'url': Matchers.listParam<String>(
+            ListParam(
+              ['foo', 'bar'],
+              ListFormat.csv,
+            ),
+          ),
+          'context': Matchers.listParam<String>(
+            ListParam(
+              ['foo', 'bar'],
+              ListFormat.multi,
+            ),
+          ),
+          'allowEmpty': '',
+          'language': {
+            'german': 'DE',
+            'english': 'EN',
+          },
+        },
+      );
+
+      final response = await client.getFakeApi().testQueryParameterCollectionFormat(
+            pipe: ['foo', 'bar'].build(),
+            ioutil: ['foo', 'bar'].build(),
+            http: ['foo', 'bar'].build(),
+            url: ['foo', 'bar'].build(),
+            context: ['foo', 'bar'].build(),
+            allowEmpty: null,
+            language: {'german': 'DE', 'english': 'EN'}.build(),
+          );
+
+      expect(response.statusCode, 200);
+    });
   });
 }

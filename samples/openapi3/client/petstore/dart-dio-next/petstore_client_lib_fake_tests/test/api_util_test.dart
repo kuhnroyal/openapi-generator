@@ -1,6 +1,7 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:built_value/serializer.dart';
 import 'package:dio/dio.dart';
+import 'package:dio/src/parameter.dart';
 import 'package:openapi/openapi.dart';
 import 'package:openapi/src/api_util.dart';
 import 'package:test/test.dart';
@@ -77,8 +78,9 @@ void main() {
             const FullType(BuiltList, [FullType(ModelEnumClass)]),
           );
 
-          expect(param.value, isEmpty);
-          expect(param.format, ListFormat.multi);
+          expect(param, isA<ListParam>());
+          expect((param as ListParam).value, isEmpty);
+          expect((param as ListParam).format, ListFormat.multi);
         });
 
         test('correct ListParam for value', () {
@@ -91,9 +93,10 @@ void main() {
             const FullType(BuiltList, [FullType(ModelEnumClass)]),
           );
 
-          expect(param.value, hasLength(2));
-          expect(param.value, containsAll(['-efg', '(xyz)']));
-          expect(param.format, ListFormat.multi);
+          expect(param, isA<ListParam>());
+          expect((param as ListParam).value, hasLength(2));
+          expect((param as ListParam).value, containsAll(['-efg', '(xyz)']));
+          expect((param as ListParam).format, ListFormat.multi);
         });
       });
 
@@ -105,8 +108,9 @@ void main() {
             const FullType(BuiltList, [FullType(EnumTestEnumIntegerEnum)]),
           );
 
-          expect(param.value, isEmpty);
-          expect(param.format, ListFormat.multi);
+          expect(param, isA<ListParam>());
+          expect((param as ListParam).value, isEmpty);
+          expect((param as ListParam).format, ListFormat.multi);
         });
 
         test('correct ListParam for value', () {
@@ -119,10 +123,26 @@ void main() {
             const FullType(BuiltList, [FullType(EnumTestEnumIntegerEnum)]),
           );
 
-          expect(param.value, hasLength(2));
-          expect(param.value, containsAll([1, -1]));
-          expect(param.format, ListFormat.multi);
+          expect(param, isA<ListParam>());
+          expect((param as ListParam).value, hasLength(2));
+          expect((param as ListParam).value, containsAll([1, -1]));
+          expect((param as ListParam).format, ListFormat.multi);
         });
+      });
+
+      test('map', () {
+        final param = encodeCollectionQueryParameter(
+          serializers,
+          {
+            'foo': 17,
+            'bar': 42,
+          }.build(),
+          const FullType(BuiltMap, [FullType(String), FullType(int)]),
+        );
+
+        expect(param, isA<Map>());
+        expect((param as Map).length, 2);
+        expect((param as Map).keys, ['foo', 'bar']);
       });
     });
 
@@ -193,8 +213,7 @@ void main() {
           1.0,
         );
         expect(
-          encodeFormParameter(
-              standardSerializers, 1.234, const FullType(double)),
+          encodeFormParameter(standardSerializers, 1.234, const FullType(double)),
           1.234,
         );
       });

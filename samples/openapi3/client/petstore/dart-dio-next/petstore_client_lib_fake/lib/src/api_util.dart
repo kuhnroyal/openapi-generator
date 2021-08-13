@@ -13,7 +13,7 @@ import 'package:dio/src/parameter.dart';
 /// Format the given form parameter object into something that Dio can handle.
 /// Returns primitive or String.
 /// Returns List/Map if the value is BuildList/BuiltMap.
-dynamic encodeFormParameter(Serializers serializers, dynamic value, FullType type) {
+Object? encodeFormParameter(Serializers serializers, Object? value, FullType type) {
   if (value == null) {
     return '';
   }
@@ -33,9 +33,9 @@ dynamic encodeFormParameter(Serializers serializers, dynamic value, FullType typ
   return json.encode(serialized);
 }
 
-dynamic encodeQueryParameter(
+Object? encodeQueryParameter(
   Serializers serializers,
-  dynamic value,
+  Object? value,
   FullType type,
 ) {
   if (value == null) {
@@ -55,24 +55,25 @@ dynamic encodeQueryParameter(
   if (serialized == null) {
     return '';
   }
-  if (serialized is String) {
-    return serialized;
-  }
   return serialized;
 }
 
-ListParam<T> encodeCollectionQueryParameter<T>(
+Object? encodeCollectionQueryParameter<T>(
   Serializers serializers,
-  dynamic value,
+  Object? value,
   FullType type, {
   ListFormat format = ListFormat.multi,
 }) {
+  if (!(value is BuiltList || value is BuiltSet || value is BuiltMap)) {
+    throw ArgumentError('Invalid non-collection value passed to encodeCollectionQueryParameter');
+  }
   final serialized = serializers.serialize(
     value as Object,
     specifiedType: type,
   );
-  if (value is BuiltList<T> || value is BuiltSet<T>) {
-    return ListParam(List.of((serialized as Iterable<Object?>).cast()), format);
+  if (value is BuiltList || value is BuiltSet) {
+    return ListParam<T>(List.of((serialized as Iterable<Object?>).cast()), format);
   }
-  throw ArgumentError('Invalid value passed to encodeCollectionQueryParameter');
+  // Return the serialized value, this can only be a map at this point
+  return serialized;
 }
